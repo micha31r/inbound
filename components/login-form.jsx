@@ -65,7 +65,7 @@ export function LoginForm({
                     Forgot your password?
                   </a> */}
                 </div>
-                <Input id="password" type="password" ref={passwordRef} required />
+                <Input id="password" type="password" placeholder="Password" ref={passwordRef} required />
               </div>
               <Button type="submit" className="w-full">
                 Log in

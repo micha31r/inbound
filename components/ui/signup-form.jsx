@@ -67,11 +67,11 @@ export function SignUpForm({
               </div>
               <div className="grid gap-3">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" ref={passwordRef} required />
+                <Input id="password" type="password" placeholder="Password" ref={passwordRef} required />
               </div>
               <div className="grid gap-3">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input id="confirmPassword" type="password" ref={confirmPasswordRef} required />
+                <Input id="confirmPassword" type="password" placeholder="Confirm password" ref={confirmPasswordRef} required />
               </div>
               <Button type="submit" className="w-full">
                 Create account
