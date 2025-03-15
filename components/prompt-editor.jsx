@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { getAllFilesByTeam } from "@/lib/data/file"
-import { getAllTeamsByUser } from "@/lib/data/team"
+import { getTeamById } from "@/lib/data/team"
 import { cn } from "@/lib/utils"
 import { Check } from "lucide-react"
 import { useEffect, useState } from "react"
@@ -43,8 +43,12 @@ export function PromptEditor({ initial }) {
       }
       setFiles(allFiles)
 
-      const _teams = await getAllTeamsByUser()
-      setTeams(_teams)
+      const allTeams = []
+      for (let teamId of _manager.team_ids) {
+        const team = await getTeamById(teamId)
+        allTeams.push(team)
+      }
+      setTeams(allTeams)
     })()
   })
 

@@ -57,11 +57,13 @@ export function FlowBlock({ isActive, title, summary, duration, files, allowEdit
         </div>
     
         {/* Related files */}
-        <div className="flex gap-2">
-          {files.map((file, index) => (
-            <FlowBlockButton key={index} />
-          ))}
-        </div>
+        {files.length > 0 && (
+          <div className="flex gap-2">
+            {files.map((file, index) => (
+              <FlowBlockButton key={index} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
