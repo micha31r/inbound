@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { getAllFilesByUser } from "@/lib/data/file"
+import { getAllFilesByTeam } from "@/lib/data/file"
 import { getAllTeamsByUser } from "@/lib/data/team"
 import { cn } from "@/lib/utils"
 import { Check } from "lucide-react"
@@ -14,28 +14,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { savePrompt } from "@/lib/data/prompt"
+import { createPrompt, savePrompt } from "@/lib/data/prompt"
 import { useRouter } from "next/navigation"
 import { generateFlow, saveFlow } from "@/lib/data/flow"
+import { getManager } from "@/lib/data/profile"
 
 export function PromptEditor({ initial }) {
+  const [name, setName] = useState(initial?.name || '')
   const [instructions, setInstructions] = useState(initial?.instructions || [''])
-  const [selectedFiles, setSelectedFiles] = useState(initial?.selectedFileIds || [])
-  const [selectedTeam, setSelectedTeam] = useState(initial?.teamId || '');
+  const [selectedFiles, setSelectedFiles] = useState(initial?.file_ids || [])
+  const [selectedTeam, setSelectedTeam] = useState(initial?.team_id || '');
+  const [manager, setManager] = useState(null)
   const [files, setFiles] = useState([])
   const [teams, setTeams] = useState([])
   const router = useRouter()
 
   useEffect(() => {
     (async () => {
-      if (!files.length) {
-        const data = await getAllFilesByUser()
-        setFiles(data)
+      if (manager) return
+
+      const _manager = await getManager()
+      setManager(_manager)
+
+      const allFiles = []
+      for (let teamId of _manager.team_ids) {
+        const _files = await getAllFilesByTeam(teamId)
+        _files.forEach(file => allFiles.push(file))
       }
-      if (!teams.length) {
-        const data = await getAllTeamsByUser()
-        setTeams(data)
-      }
+      setFiles(allFiles)
+
+      const _teams = await getAllTeamsByUser()
+      setTeams(_teams)
     })()
   })
 
@@ -64,7 +73,31 @@ export function PromptEditor({ initial }) {
   }
 
   async function saveActionHandler() {
-    const { data, error } = await savePrompt(instructions, selectedFiles, teamId)
+    try {
+      if (initial) {
+        await savePrompt(initial.id, {
+          id: initial.id,
+          name: name || "Untitled Prompt",
+          instructions: instructions,
+          fileIds: selectedFiles,
+          teamId: selectedTeam
+        })
+
+        window.location.reload()
+      } else {
+        // Create new prompt
+        const data = await createPrompt({
+          name: name || "Untitled Prompt",
+          instructions: instructions,
+          fileIds: selectedFiles,
+          teamId: selectedTeam
+        })
+
+        router.push("/dashboard/prompts/" + data.id)
+      }
+    } catch {
+      console.error("Failed to save/create prompt")
+    }
   }
 
   async function createOnboardingFlow() {
@@ -75,6 +108,9 @@ export function PromptEditor({ initial }) {
   
   return (
     <div className="space-y-4">
+      <h3 className="font-semibold">Prompt Name</h3>
+      <Input className="w-[240px]" placeholder="Prompt name" value={name} onChange={event => setName(event.target.value)} />
+
       <h3 className="font-semibold">Provide Instructions</h3>
       {/* Enter instructions */}
       <div className="space-y-4">
@@ -87,7 +123,6 @@ export function PromptEditor({ initial }) {
         
         <Button variant="secondary" className="font-bold rounded-full w-max cursor-pointer" onClick={addInstruction}>Add instruction</Button>
       </div>
-
 
       {/* Select files */}
       <div className="space-y-4">
@@ -123,8 +158,6 @@ export function PromptEditor({ initial }) {
             {teams.map((team, index) => (
               <SelectItem key={index} value={team.id}>{team.name}</SelectItem>
             ))}
-            {/* <SelectItem value="dark">Dark</SelectItem> */}
-            {/* <SelectItem value="system">System</SelectItem> */}
           </SelectContent>
         </Select>
       </div>

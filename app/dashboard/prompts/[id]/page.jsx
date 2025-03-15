@@ -12,7 +12,7 @@ export default function PromptEditPage() {
   useEffect(() => {
     (async () => {
       if (prompt) return 
-      const data = await getPromptById("abc")
+      const data = await getPromptById(params.id)
       setPrompt(data)
     })()
   })

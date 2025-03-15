@@ -2,9 +2,10 @@
 
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
-import { getAllPromptsByUser } from "@/lib/data/prompt"
+import { getAllPromptsByTeam } from "@/lib/data/prompt"
 import { useParams, usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { getManager } from "@/lib/data/profile"
 
 export default function PromptLayout({ children }) {
   const [prompts, setPrompts] = useState([])
@@ -14,12 +15,16 @@ export default function PromptLayout({ children }) {
 
   useEffect(() => {
     (async () => {
-      if (prompts.length) {
-        return
-      }
+      if (prompts.length) return
 
-      const data = await getAllPromptsByUser()
-      setPrompts(data)
+      const manager = await getManager()
+
+      const allPrompts = []
+      for (let teamId of manager.team_ids) {
+        const _prompts = await getAllPromptsByTeam(teamId)
+        _prompts.forEach(prompt => allPrompts.push(prompt))
+      }
+      setPrompts(allPrompts)
     })()
   })
 
@@ -37,8 +42,8 @@ export default function PromptLayout({ children }) {
             
             {prompts.map((prompt, index) => (
               <Button key={index} variant="ghost" className={cn("w-full justify-start p-3 cursor-pointer rounded-lg overflow-hidden", {
-                "text-primary bg-primary/10": params.id === prompt.id
-              })} onClick={() => router.push("/dashboard/prompts/" + prompt.id)}>{prompt.instructions[0]}</Button>
+                "text-primary bg-primary/10": params.id == prompt.id
+              })} onClick={() => router.push("/dashboard/prompts/" + prompt.id)}>{prompt.name}</Button>
             ))}
           </div>
         </div>
