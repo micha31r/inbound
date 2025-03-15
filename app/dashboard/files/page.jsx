@@ -19,10 +19,12 @@ export default function FilePage() {
       const _manager = await getManager()
       setManager(_manager)
 
-      _manager.team_ids.forEach(async teamId => {
-        const _files = await getAllFilesByTeam(_manager)
-        setExistingFiles(existingFiles => [...existingFiles, _files])
-      })
+      const allFiles = []
+      for (let teamId of _manager.team_ids) {
+        const _files = await getAllFilesByTeam(teamId)
+        _files.forEach(file => allFiles.push(file))
+      }
+      setExistingFiles(allFiles)
     })()
   })
 
