@@ -1,6 +1,7 @@
 "use client"
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import Popup from "@/components/ui/popup";
 
 export default function Home() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function Home() {
         <h1 className="text-8xl max-w-5xl font-medium">The onboarding tool from the future</h1>  
         <h2 className="text-2xl max-w-3xl">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</h2>
         <Button className="text-xl p-8 cursor-pointer rounded-full w-max" onClick={() => router.push('/auth/signup')}>Get started today</Button>
+        <Popup/>
       </main>
 
       <footer className="flex flex-col w-full items-center">
