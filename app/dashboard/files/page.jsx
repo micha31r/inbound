@@ -4,25 +4,31 @@ import { DragFileInput } from "@/components/drag-file-input";
 import { X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { getAllFilesByUser, uploadFile } from "@/lib/data/file";
+import { getAllFilesByTeam, uploadFile } from "@/lib/data/file";
+import { getManager } from "@/lib/data/profile";
 
 export default function FilePage() {
   const [files, setFiles] = useState([])
   const [existingFiles, setExistingFiles] = useState([])
+  const [manager, setManager] = useState(null)
 
   useEffect(() => {
     (async () => {
-      if (existingFiles.length) {
-        return
-      }
+      if (manager) return
 
-      const data = await getAllFilesByUser()
+      const _manager = await getManager()
+      setManager(_manager)
+
+      const data = await getAllFilesByTeam(_manager.team_id)
       setExistingFiles(data)
     })()
   })
 
   async function uploadFiles() {
-    files.forEach(file => uploadFile(file))
+    for (let file of files) {
+      await uploadFile(manager.team_id, file)
+    }
+    window.location.reload()
   }
 
   return (
