@@ -10,14 +10,6 @@ import LoginImage from "@/public/login-gradient.png";
 import { useRef } from "react";
 import { supabase } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import {
-  generateFlow,
-  getAllFlowsByUser,
-  getMostRecentFlow,
-  getMostRecentPublishedFlowByTeam,
-  saveBlock,
-  updateBlockOrder,
-} from "@/lib/data/flow";
 import { useEffect } from "react";
 import { getFlowById } from "../lib/data/flow.js";
 
@@ -52,16 +44,13 @@ export function LoginForm({
     }
   }
 
-  useEffect(() => {
-    (async () => {
-      const temp = await generateFlow({
-        name: "test-icle",
-        teamId: 1,
-        is_published: false,
-      });
-      console.log(temp);
-    })();
-  });
+  // **for testing**
+  // useEffect(() => {
+  //   (async () => {
+  //     const temp = await getTeamById(1);
+  //     console.log(temp);
+  //   })();
+  // });
 
   return (
     (
