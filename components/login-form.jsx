@@ -11,9 +11,11 @@ import { useRef } from "react";
 import { supabase } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import {
+  generateFlow,
   getAllFlowsByUser,
   getMostRecentFlow,
   getMostRecentPublishedFlowByTeam,
+  saveBlock,
   updateBlockOrder,
 } from "@/lib/data/flow";
 import { useEffect } from "react";
@@ -52,16 +54,13 @@ export function LoginForm({
 
   useEffect(() => {
     (async () => {
-      const temp = await saveBlock({
-        title: "test",
-        summary: "test",
-        duration: 10,
-        files: ["test"],
+      const temp = await generateFlow({
+        name: "test-icle",
         teamId: 1,
-        flowId: 2,
+        is_published: false,
       });
       console.log(temp);
-    });
+    })();
   });
 
   return (
@@ -74,7 +73,7 @@ export function LoginForm({
                 <div className="flex flex-col items-center text-center">
                   <h1 className="text-2xl font-bold">Welcome back</h1>
                   <p className="text-muted-foreground text-balance">
-                    Login to your account you bitch
+                    Login to your account
                   </p>
                 </div>
                 <div className="grid gap-3">
