@@ -71,7 +71,9 @@ export default function FlowEditPage() {
               {allFlows?.map((flow, index) => (
                 <Button key={index} variant="ghost" className={cn("w-full justify-start p-3 cursor-pointer rounded-lg", {
                   "text-primary bg-primary/10": flow.id == params.id
-                })} onClick={() => router.push("/dashboard/flows/" + flow.id)}>{flow.name}</Button>
+                })} onClick={() => router.push("/dashboard/flows/" + flow.id)}>
+                  <span className="line-clamp-1">{flow.name}</span>
+                </Button>
               ))}
             </div>
           </div>

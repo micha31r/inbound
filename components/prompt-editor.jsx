@@ -16,8 +16,9 @@ import {
 } from "@/components/ui/select"
 import { createPrompt, savePrompt } from "@/lib/data/prompt"
 import { useRouter } from "next/navigation"
-import { generateFlow, saveFlow } from "@/lib/data/flow"
+import { createFlow, saveBlock, saveFlow } from "@/lib/data/flow"
 import { getManager } from "@/lib/data/profile"
+import { generateOnboardingFlow } from "@/lib/openai/openai"
 
 export function PromptEditor({ initial }) {
   const [name, setName] = useState(initial?.name || '')
@@ -105,9 +106,37 @@ export function PromptEditor({ initial }) {
   }
 
   async function createOnboardingFlow() {
-    const flowData = await generateFlow(instructions, files.filter(file => selectedFiles.includes(file.id)), selectedTeam)
-    const { data, error } = await saveFlow(flowData)
-    router.push("/dashboard/flows")
+    if (!selectedTeam) {
+      console.log("Failed to create onboarding flow. Must select a team.")
+      return 
+    }
+
+    const document = `
+      Welcome to the company handbook. Our core values are integrity, innovation, and teamwork. 
+      All employees are expected to complete security training and understand company policies.
+      Quarterly meetings cover business strategy, and technical teams should review code guidelines. 
+    `
+    const response = await generateOnboardingFlow(document)
+
+    const flowData = await createFlow({
+      name: response.title,
+      teamId: selectedTeam,
+      isPublished: false,
+    })
+
+    for (let i=0; i<response.learning_tasks.length; i++) {
+      const block = response.learning_tasks[i]
+      await saveBlock({
+        title: block.title,
+        summary: block.summary,
+        duration: block.estimated_time_minutes,
+        files: selectedFiles,
+        flowId: flowData.id,
+        order: i
+      })
+    }
+
+    router.push("/dashboard/flows/" + flowData.id)
   }
   
   return (
