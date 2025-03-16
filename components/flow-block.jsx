@@ -1,7 +1,7 @@
 "use client"
 
 import { cn, getFileNameFromPath } from "@/lib/utils"
-import { BookOpen, Settings2 } from "lucide-react"
+import { BookOpen, Check, Settings2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -18,7 +18,8 @@ import { Label } from "@/components/ui/label"
 import { useEffect, useRef, useState } from "react"
 import { Textarea } from "./ui/textarea"
 import { getPublicUrl } from "@/lib/data/file"
-import { updateBlockContent } from "@/lib/data/flow"
+import { createProgress, deleteProgress, getProgress, updateBlockContent } from "@/lib/data/flow"
+import { getEmployee } from "@/lib/data/profile"
 
 function PDFViewer({ filePath }) {
   const [PDFUrl, setPDFUrl] = useState(null);
@@ -66,6 +67,33 @@ function FilePreviewDialog({ filePath, children }) {
 }
 
 export function FlowBlock({ isActive, blockId, title, summary, content, duration, files, allowEdit = false }) {
+  const [isComplete, setIsComplete] = useState(false)
+  
+  useEffect(() => {
+    (async () => {
+      if (allowEdit) return
+      // Execute code below if an employee is viewing this page
+
+      const employee = await getEmployee()
+      const data = await getProgress(employee.user_id, blockId)
+      setIsComplete(!!data)
+    })()
+  })
+
+  async function toggleProgress() {
+    const employee = await getEmployee()
+    try {
+      if (!isComplete) {
+        await createProgress(employee.user_id, blockId)
+      } else {
+        await deleteProgress(employee.user_id, blockId)
+      }
+    } catch {
+      console.error("Failed to update block progress")
+    }
+    window.location.reload()
+  }
+
   return (
     <div className={cn("border border-secondary-accent rounded-xl bg-secondary w-xl max-w-full", {
       "border-primary": isActive,
@@ -84,7 +112,13 @@ export function FlowBlock({ isActive, blockId, title, summary, content, duration
               </Button>
             </Editor>
           </div>
-        ) : <div className="w-5 h-5 border-2 border-secondary-accent rounded-full"></div>}
+        ) : (
+          <div className={cn("w-5 h-5 border-2 border-secondary-accent rounded-full cursor-pointer", {
+            "border-primary bg-primary": isComplete
+          })} onClick={toggleProgress}>
+            {isComplete && <Check className="size-4" />}
+          </div>
+        )}
       </div>
 
       {/* HR */}
