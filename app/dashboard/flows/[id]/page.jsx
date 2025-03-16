@@ -107,7 +107,7 @@ export default function FlowEditPage() {
                       </Button>}
                     </div>
                     <div className="flex flex-col items-center">
-                      <FlowBlock isActive={false} title={block.title} summary={block.summary} duration={block.duration} files={block.files || []} allowEdit={true} />
+                      <FlowBlock isActive={false} title={block.title} summary={block.summary} content={block.content} duration={block.duration} files={block.file_paths || []} allowEdit={true} />
                       {index < flow.Block.length - 1 && <FlowChain />}
                     </div>
                   </div>

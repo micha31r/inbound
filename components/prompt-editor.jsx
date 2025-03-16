@@ -2,9 +2,9 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { getAllFilesByTeam } from "@/lib/data/file"
+import { downloadFile, getAllFilesByTeam } from "@/lib/data/file"
 import { getTeamById } from "@/lib/data/team"
-import { cn } from "@/lib/utils"
+import { cn, extractTextFromPDF, getFileNameFromPath } from "@/lib/utils"
 import { Check } from "lucide-react"
 import { useEffect, useState } from "react"
 import {
@@ -23,7 +23,7 @@ import { generateOnboardingFlow } from "@/lib/openai/openai"
 export function PromptEditor({ initial }) {
   const [name, setName] = useState(initial?.name || '')
   const [instructions, setInstructions] = useState(initial?.instructions || [''])
-  const [selectedFiles, setSelectedFiles] = useState(initial?.file_ids || [])
+  const [selectedFiles, setSelectedFiles] = useState(initial?.file_paths || [])
   const [selectedTeam, setSelectedTeam] = useState(initial?.team_id || '');
   const [manager, setManager] = useState(null)
   const [files, setFiles] = useState([])
@@ -67,12 +67,12 @@ export function PromptEditor({ initial }) {
     }
   }
 
-  function selectFile(fileId) {
+  function selectFile(filePath) {
     setSelectedFiles(selectedFiles => {
-        if (selectedFiles.includes(fileId)) {
-          return selectedFiles.filter(id => id !== fileId)
+        if (selectedFiles.includes(filePath)) {
+          return selectedFiles.filter(id => id !== filePath)
         } else {
-          return [...selectedFiles, fileId]
+          return [...selectedFiles, filePath]
         }
     })
   }
@@ -84,7 +84,7 @@ export function PromptEditor({ initial }) {
           id: initial.id,
           name: name || "Untitled Prompt",
           instructions: instructions,
-          fileIds: selectedFiles,
+          filePaths: selectedFiles,
           teamId: selectedTeam
         })
 
@@ -94,7 +94,7 @@ export function PromptEditor({ initial }) {
         const data = await createPrompt({
           name: name || "Untitled Prompt",
           instructions: instructions,
-          fileIds: selectedFiles,
+          filePaths: selectedFiles,
           teamId: selectedTeam
         })
 
@@ -111,12 +111,18 @@ export function PromptEditor({ initial }) {
       return 
     }
 
-    const document = `
-      Welcome to the company handbook. Our core values are integrity, innovation, and teamwork. 
-      All employees are expected to complete security training and understand company policies.
-      Quarterly meetings cover business strategy, and technical teams should review code guidelines. 
-    `
-    const response = await generateOnboardingFlow(document)
+    const documents = []
+
+    for (let filePath of selectedFiles) {
+      const blob = await downloadFile(filePath)
+      const text = await extractTextFromPDF(blob)
+      documents.push({
+        filePath: filePath,
+        text: text
+      })
+    }
+
+    const response = await generateOnboardingFlow(instructions, documents)
 
     const flowData = await createFlow({
       name: response.title,
@@ -129,8 +135,9 @@ export function PromptEditor({ initial }) {
       await saveBlock({
         title: block.title,
         summary: block.summary,
+        content: block.content,
         duration: block.estimated_time_minutes,
-        files: selectedFiles,
+        filePaths: block.file_paths,
         flowId: flowData.id,
         order: i
       })
@@ -164,12 +171,12 @@ export function PromptEditor({ initial }) {
         {files.length > 0 && (
             <div className="flex gap-4 flex-wrap">
             {files.map((file, index) => (
-              <div key={index} onClick={_ => selectFile(file.id)} className="flex items-center border-2 border-border bg-secondary/30 rounded-full p-1 px-2 w-max cursor-pointer hover:border-primary transition-colors">
-                <span className="text-sm font-medium p-1 pr-2">{file.name}</span>
+              <div key={index} onClick={_ => selectFile(file.fullPath)} className="flex items-center border-2 border-border bg-secondary/30 rounded-full p-1 px-2 w-max cursor-pointer hover:border-primary transition-colors">
+                <span className="text-sm font-medium p-1 pr-2">{getFileNameFromPath(file.name)}</span>
                 <div className={cn("w-5 h-5 border-2 border-secondary-accent rounded-full", {
-                  "border-primary bg-primary": selectedFiles.includes(file.id)
+                  "border-primary bg-primary": selectedFiles.includes(file.fullPath)
                 })}>
-                  {selectedFiles.includes(file.id) && <Check className="size-4" />}
+                  {selectedFiles.includes(file.fullPath) && <Check className="size-4" />}
                 </div>
               </div>
             ))}
