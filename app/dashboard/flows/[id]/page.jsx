@@ -3,7 +3,7 @@
 import { FlowBlock } from "@/components/flow-block";
 import { FlowChain } from "@/components/flow-chain";
 import { Button } from "@/components/ui/button";
-import { getAllFlowsByUser, getFlowById, updateBlockOrder } from "@/lib/data/flow";
+import { getAllFlowsByUser, getFlowById, updateBlockOrder, updateFlowPublishStatus } from "@/lib/data/flow";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronRight, ChevronUp } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
@@ -59,6 +59,11 @@ export default function FlowEditPage() {
     })
   }
 
+  async function updatePublishStatus(isPublished) {
+    await updateFlowPublishStatus(params.id, isPublished)
+    window.location.reload()
+  }
+
   return (
     <div>
       <div className="w-full h-svh grid grid-cols-[280px_1fr]">
@@ -88,9 +93,9 @@ export default function FlowEditPage() {
               <h3 className="font-semibold py-2">{flow?.name}</h3>
             </div>
 
-            {flow?.isPublished 
-              ? <Button variant="secondary" className="h-max py-2 font-bold cursor-pointer">Make private</Button>
-              : <Button className="h-max py-2 font-bold cursor-pointer">Publish</Button> }
+            {flow?.is_published 
+              ? <Button variant="secondary" className="h-max py-2 font-bold cursor-pointer" onClick={() => updatePublishStatus(false)}>Make private</Button>
+              : <Button className="h-max py-2 font-bold cursor-pointer" onClick={() => updatePublishStatus(true)}>Publish</Button> }
           </div>
           
           <div className="overflow-auto p-5">
