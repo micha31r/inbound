@@ -38,7 +38,7 @@ export default function DashboardLayout({ children }) {
         </a>
 
         {/* Links */}
-        <div className="flex flex-col flex-1 gap-4 mx-auto">
+        <div className="flex flex-col flex-1 gap-4 mx-auto text-muted-foreground">
           <Button variant="ghost" size="icon" className={cn("w-10 h-10 cursor-pointer rounded-lg hover:text-primary", {
             "text-primary": pathname.includes("/dashboard/files"),
           })} onClick={() => router.push("/dashboard/files")}>
@@ -59,7 +59,7 @@ export default function DashboardLayout({ children }) {
         </div>
 
         {/* Account actions */}
-        <div className="flex flex-col gap-4 mx-auto">
+        <div className="flex flex-col gap-4 mx-auto text-muted-foreground">
           <ThemeToggle />
 
           <Button variant="ghost" size="icon" className="w-10 h-10 cursor-pointer rounded-lg hover:text-primary" onClick={logout}>

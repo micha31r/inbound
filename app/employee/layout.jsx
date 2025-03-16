@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/utils/supabase/client";
 import { ThemeToggle } from "@/components/theme-toggle";
+import Image from "next/image";
 
 export default function EmployeeLayout({ children }) {
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function EmployeeLayout({ children }) {
         </a>
 
         {/* Links */}
-        <div className="flex flex-col flex-1 gap-4 mx-auto">
+        <div className="flex flex-col flex-1 gap-4 mx-auto text-muted-foreground">
           <Button variant="ghost" size="icon" className={cn("w-10 h-10 cursor-pointer rounded-lg hover:text-primary", {
             "text-primary": pathname === "/employee" || pathname.includes("/employee/published"),
           })} onClick={() => router.push("/employee")}>
