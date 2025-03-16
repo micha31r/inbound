@@ -69,7 +69,7 @@ export default function FlowEditPage() {
       <div className="w-full h-svh grid grid-cols-[280px_1fr]">
         <div className="flex flex-col max-h-svh border-r border-border">
           <div className="border-b border-border p-5">
-            <h3 className="font-semibold">Flows</h3>
+            <h3 className="font-semibold">Onboarding Guides</h3>
           </div>
           <div className="flex-1 overflow-auto h-full">
             <div className="flex flex-col gap-1 p-3">

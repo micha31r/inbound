@@ -203,7 +203,7 @@ export function PromptEditor({ initial }) {
       </div>
       <div className="space-x-4">
         <Button variant="secondary" className="font-bold rounded-full w-max cursor-pointer mt-8" onClick={saveActionHandler}>Save</Button>
-        <Button className="font-bold rounded-full w-max cursor-pointer mt-8" onClick={createOnboardingFlow} disabled={!selectedTeam}>Create Onboarding Flow</Button>
+        <Button className="font-bold rounded-full w-max cursor-pointer mt-8" onClick={createOnboardingFlow} disabled={!selectedTeam}>Generate onboarding guide</Button>
       </div>
     </div>
   )

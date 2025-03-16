@@ -134,7 +134,7 @@ function Editor({ blockId, title, content, duration, children }) {
         <DialogHeader>
           <DialogTitle>Edit Block</DialogTitle>
           <DialogDescription>
-            Review block content to ensure that information in the onboarding flow is factual. Remember to save your changes when done.
+            Review block content to ensure that information in the onboarding guide is factual. Remember to save your changes when done.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
