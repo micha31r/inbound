@@ -34,6 +34,10 @@ export default function FlowViewPage() {
     })()
   })
 
+  if (!flow) {
+    return null
+  }
+
   return (
     <div>
       <div className="w-full h-svh grid grid-cols-[280px_1fr]">
