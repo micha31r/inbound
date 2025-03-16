@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { getAllFilesByTeam, uploadFile } from "@/lib/data/file";
 import { getManager } from "@/lib/data/profile";
 import { getFileNameFromPath } from "@/lib/utils";
+import { FilePreviewDialog } from "@/components/file-preview";
 
 export default function FilePage() {
   const [files, setFiles] = useState([])
@@ -45,9 +46,11 @@ export default function FilePage() {
           </div>
           <div className="flex flex-col gap-1 p-3">
             {existingFiles.map((file, index) => (
-              <Button key={index} variant="ghost" className="w-full justify-start p-3 rounded-lg">
-                <span className="line-clamp-1">{getFileNameFromPath(file.name)}</span>
-              </Button>
+              <FilePreviewDialog key={index} filePath={file.fullPath}>
+                <Button variant="ghost" className="w-full justify-start p-3 rounded-lg cursor-pointer">
+                  <span className="line-clamp-1">{getFileNameFromPath(file.name)}</span>
+                </Button>
+              </FilePreviewDialog>
             ))}
           </div>
         </div>
