@@ -33,12 +33,6 @@ export default function DashboardLayout({ children }) {
         {/* Links */}
         <div className="flex flex-col flex-1 gap-4 mx-auto">
           <Button variant="ghost" size="icon" className={cn("w-10 h-10 cursor-pointer rounded-lg hover:text-primary", {
-            "text-primary": pathname === "/dashboard",
-          })} onClick={() => router.push("/dashboard")}>
-              <ChartNoAxesGantt className="size-6" />
-          </Button>
-
-          <Button variant="ghost" size="icon" className={cn("w-10 h-10 cursor-pointer rounded-lg hover:text-primary", {
             "text-primary": pathname.includes("/dashboard/files"),
           })} onClick={() => router.push("/dashboard/files")}>
               <File className="size-6" />
