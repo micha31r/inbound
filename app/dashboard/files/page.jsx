@@ -45,7 +45,9 @@ export default function FilePage() {
           </div>
           <div className="flex flex-col gap-1 p-3">
             {existingFiles.map((file, index) => (
-              <Button key={index} variant="ghost" className="w-full justify-start p-3 rounded-lg">{getFileNameFromPath(file.name)}</Button>
+              <Button key={index} variant="ghost" className="w-full justify-start p-3 rounded-lg">
+                <span className="line-clamp-1">{getFileNameFromPath(file.name)}</span>
+              </Button>
             ))}
           </div>
         </div>
