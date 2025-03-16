@@ -27,7 +27,13 @@ export default function EmployeeLayout({ children }) {
       <nav className="flex flex-col items-center gap-6 border-r border-border p-3 pt-5 transition-colors bg-secondary/30">
         {/* Logo */}
         <a href="/dashboard">
-          <div className="block w-6 h-6 bg-primary"></div>
+          <Image 
+            src="/logoplane.png" 
+            alt="Logo" 
+            width={50} 
+            height={50} 
+            className="block w-10 h-10"
+          />
         </a>
 
         {/* Links */}
