@@ -87,7 +87,15 @@ export function AppSidebar({
                   <div
                     className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                     {/* Logo */}
-                    <div className="block w-4 h-4 bg-foreground"></div>
+                    <a href="/dashboard">
+                      <Image 
+                        src="/logoplane.png" 
+                        alt="Logo" 
+                        width={50} 
+                        height={50} 
+                        className="block w-10 h-10"
+                      />
+                    </a>
                   </div>
                 </a>
               </SidebarMenuButton>
