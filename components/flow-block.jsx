@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label"
 import { useEffect, useRef, useState } from "react"
 import { Textarea } from "./ui/textarea"
 import { getPublicUrl } from "@/lib/data/file"
+import { updateBlockContent } from "@/lib/data/flow"
 
 function PDFViewer({ filePath }) {
   const [PDFUrl, setPDFUrl] = useState(null);
@@ -64,7 +65,7 @@ function FilePreviewDialog({ filePath, children }) {
   )
 }
 
-export function FlowBlock({ isActive, title, summary, content, duration, files, allowEdit = false }) {
+export function FlowBlock({ isActive, blockId, title, summary, content, duration, files, allowEdit = false }) {
   return (
     <div className={cn("border border-secondary-accent rounded-xl bg-secondary w-xl max-w-full", {
       "border-primary": isActive,
@@ -77,7 +78,7 @@ export function FlowBlock({ isActive, title, summary, content, duration, files, 
         
         {allowEdit ? (
           <div>
-            <Editor title={title} summary={summary} duration={duration}>
+            <Editor blockId={blockId} title={title} content={content} duration={duration}>
               <Button variant="ghost" size="icon" className="w-8 h-8 cursor-pointer border border-secondary-accent">
                 <Settings2 className="size-4" />
               </Button>
@@ -110,13 +111,18 @@ export function FlowBlock({ isActive, title, summary, content, duration, files, 
   )
 }
 
-function Editor({ title, summary, duration, children }) {
+function Editor({ blockId, title, content, duration, children }) {
   const [titleValue, setTitleValue] = useState(title)
-  const [summaryValue, setSummaryValue] = useState(summary)
+  const [contentValue, setContentValue] = useState(content)
   const [durationValue, setDurationValue] = useState(duration)
 
   async function saveChanges() {
-    console.log(titleValue)
+    await updateBlockContent(blockId, { 
+      title: titleValue,
+      content: contentValue,
+      duration: durationValue
+    })
+    window.location.reload()
   }
 
   return (
@@ -139,10 +145,10 @@ function Editor({ title, summary, duration, children }) {
             <Input className="!bg-secondary-accent/50 border-secondary-accent" id="title" value={titleValue} onChange={event => setTitleValue(event.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="summary" className="text-right">
-              Summary
+            <Label htmlFor="content" className="text-right">
+              Content
             </Label>
-            <Textarea id="summary" className="h-28 max-h-40 !bg-secondary-accent/50 border-secondary-accent" value={summaryValue} onChange={event => setSummaryValue(event.target.value)} />
+            <Textarea id="content" className="h-28 max-h-40 !bg-secondary-accent/50 border-secondary-accent" value={contentValue} onChange={event => setSummaryValue(event.target.value)} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="duration" className="text-right">

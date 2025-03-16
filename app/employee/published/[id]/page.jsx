@@ -71,7 +71,7 @@ export default function FlowViewPage() {
             <div className="flex flex-col items-center">
               {flow && flow.blocks.map((block, index) => (       
                 <React.Fragment key={index}>
-                  <FlowBlock isActive={false} title={block.title} summary={block.summary} content={block.content} duration={block.duration} files={block.file_paths} />
+                  <FlowBlock isActive={false} blockId={block.id} title={block.title} summary={block.summary} content={block.content} duration={block.duration} files={block.file_paths} />
                   {index < flow.blocks.length - 1 && <FlowChain />}
                 </React.Fragment>
               ))}
