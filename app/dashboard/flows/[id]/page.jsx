@@ -3,7 +3,7 @@
 import { FlowBlock } from "@/components/flow-block";
 import { FlowChain } from "@/components/flow-chain";
 import { Button } from "@/components/ui/button";
-import { getAllFlowsByUser, getFlowById, updateBlockOrder } from "@/lib/data/flow";
+import { getAllFlowsByUser, getFlowById, updateBlockOrder, updateFlowPublishStatus } from "@/lib/data/flow";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronRight, ChevronUp } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
@@ -59,19 +59,26 @@ export default function FlowEditPage() {
     })
   }
 
+  async function updatePublishStatus(isPublished) {
+    await updateFlowPublishStatus(params.id, isPublished)
+    window.location.reload()
+  }
+
   return (
     <div>
       <div className="w-full h-svh grid grid-cols-[280px_1fr]">
         <div className="flex flex-col max-h-svh border-r border-border">
           <div className="border-b border-border p-5">
-            <h3 className="font-semibold">Flows</h3>
+            <h3 className="font-semibold">Onboarding Guides</h3>
           </div>
           <div className="flex-1 overflow-auto h-full">
             <div className="flex flex-col gap-1 p-3">
               {allFlows?.map((flow, index) => (
                 <Button key={index} variant="ghost" className={cn("w-full justify-start p-3 cursor-pointer rounded-lg", {
                   "text-primary bg-primary/10": flow.id == params.id
-                })} onClick={() => router.push("/dashboard/flows/" + flow.id)}>{flow.name}</Button>
+                })} onClick={() => router.push("/dashboard/flows/" + flow.id)}>
+                  <span className="line-clamp-1">{flow.name}</span>
+                </Button>
               ))}
             </div>
           </div>
@@ -86,9 +93,9 @@ export default function FlowEditPage() {
               <h3 className="font-semibold py-2">{flow?.name}</h3>
             </div>
 
-            {flow?.isPublished 
-              ? <Button variant="secondary" className="h-max py-2 font-bold cursor-pointer">Make private</Button>
-              : <Button className="h-max py-2 font-bold cursor-pointer">Publish</Button> }
+            {flow?.is_published 
+              ? <Button variant="secondary" className="h-max py-2 font-bold cursor-pointer" onClick={() => updatePublishStatus(false)}>Make private</Button>
+              : <Button className="h-max py-2 font-bold cursor-pointer" onClick={() => updatePublishStatus(true)}>Publish</Button> }
           </div>
           
           <div className="overflow-auto p-5">
@@ -105,7 +112,7 @@ export default function FlowEditPage() {
                       </Button>}
                     </div>
                     <div className="flex flex-col items-center">
-                      <FlowBlock isActive={false} title={block.title} summary={block.summary} duration={block.duration} files={block.files || []} allowEdit={true} />
+                      <FlowBlock isActive={false} blockId={block.id} title={block.title} summary={block.summary} content={block.content} duration={block.duration} files={block.file_paths || []} allowEdit={true} />
                       {index < flow.Block.length - 1 && <FlowChain />}
                     </div>
                   </div>

@@ -1,6 +1,7 @@
 "use client"
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import Image from 'next/image';
 
 export default function Home() {
   const router = useRouter();
@@ -8,9 +9,14 @@ export default function Home() {
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <nav className="flex justify-between items-center w-full">
-        <div className="flex items-center space-x-3">
-          <div className="block w-6 h-6 bg-foreground"></div>
-          <h3 className="font-bold text-2xl">Cube</h3>
+        <div className="flex items-center">
+          <Image 
+            src="/inboundwhite.png" 
+            alt="Logo" 
+            width={200} 
+            height={100} 
+            className="block"
+          />
         </div>
         <div className="flex items-center space-x-4">
           <Button variant="outline" className="text-lg px-4 py-5 cursor-pointer" onClick={() => router.push('/auth/login')}>Log in</Button>
@@ -18,9 +24,10 @@ export default function Home() {
         </div>
       </nav>
 
-      <main className="flex flex-col gap-8 items-center text-center">
-        <h1 className="text-8xl max-w-5xl font-medium">The onboarding tool from the future</h1>  
-        <h2 className="text-2xl max-w-3xl">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</h2>
+      <main className="flex flex-col gap-10 items-center text-center">
+        <h1 className="text-9xl max-w-8xl font-bold">WELCOME ABOARD,</h1>
+        <h1 className="text-8xl max-w-8xl font-bold">STRESS-FREE ONBOARDING</h1>  
+        <h2 className="text-2xl max-w-3xl text-opacity-80 text-muted-foreground">Your new onboarding companion, designed to streamline the onboarding process. Say goodbye to the stress and hello to a more efficient, organized, and welcoming onboarding experience.</h2>
         <Button className="text-xl p-8 cursor-pointer rounded-full w-max" onClick={() => router.push('/auth/signup')}>Get started today</Button>
       </main>
 

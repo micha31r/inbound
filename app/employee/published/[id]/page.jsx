@@ -22,10 +22,10 @@ export default function FlowViewPage() {
     (async () => {
       if (!flow) {
         const _flow = await getFlowById(params.id)
-        _flow.blocks.sort((a, b) => a.order - b.order)
+        _flow.Block.sort((a, b) => a.order - b.order)
         setFlow(_flow)
 
-        const _team = await getTeamById(_flow.teamId)
+        const _team = await getTeamById(_flow.team_id)
         setTeam(_team)
 
         const _allFlows = await getAllFlowsByUser()
@@ -33,6 +33,10 @@ export default function FlowViewPage() {
       }
     })()
   })
+
+  if (!flow) {
+    return null
+  }
 
   return (
     <div>
@@ -45,7 +49,9 @@ export default function FlowViewPage() {
             {allFlows?.map((flow, index) => (
               <Button key={index} variant="ghost" className={cn("w-full justify-start p-3 cursor-pointer rounded-lg", {
                 "text-primary bg-primary/10": flow.id == params.id
-              })} onClick={() => router.push("/employee/published/" + flow.id)}>{flow.name}</Button>
+              })} onClick={() => router.push("/employee/published/" + flow.id)}>
+                <span className="line-clamp-1">{flow.name}</span>
+              </Button>
             ))}
           </div>
         </div>
@@ -69,10 +75,10 @@ export default function FlowViewPage() {
             </div>
 
             <div className="flex flex-col items-center">
-              {flow && flow.blocks.map((block, index) => (       
+              {flow && flow.Block.map((block, index) => (       
                 <React.Fragment key={index}>
-                  <FlowBlock isActive={false} title={block.title} summary={block.summary} duration={block.duration} files={block.files} />
-                  {index < flow.blocks.length - 1 && <FlowChain />}
+                  <FlowBlock isActive={false} blockId={block.id} title={block.title} summary={block.summary} content={block.content} duration={block.duration} files={block.file_paths} />
+                  {index < flow.Block.length - 1 && <FlowChain />}
                 </React.Fragment>
               ))}
             </div>

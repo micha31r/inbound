@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/utils/supabase/client";
 import { ThemeToggle } from "@/components/theme-toggle";
+import Image from "next/image"; // Import Image for Next.js
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
@@ -27,17 +28,17 @@ export default function DashboardLayout({ children }) {
       <nav className="flex flex-col items-center gap-6 border-r border-border p-3 pt-5 transition-colors bg-secondary/30">
         {/* Logo */}
         <a href="/dashboard">
-          <div className="block w-6 h-6 bg-primary"></div>
+          <Image 
+            src="/logoplane.png" 
+            alt="Logo" 
+            width={50} 
+            height={50} 
+            className="block w-10 h-10"
+          />
         </a>
 
         {/* Links */}
-        <div className="flex flex-col flex-1 gap-4 mx-auto">
-          <Button variant="ghost" size="icon" className={cn("w-10 h-10 cursor-pointer rounded-lg hover:text-primary", {
-            "text-primary": pathname === "/dashboard",
-          })} onClick={() => router.push("/dashboard")}>
-              <ChartNoAxesGantt className="size-6" />
-          </Button>
-
+        <div className="flex flex-col flex-1 gap-4 mx-auto text-muted-foreground">
           <Button variant="ghost" size="icon" className={cn("w-10 h-10 cursor-pointer rounded-lg hover:text-primary", {
             "text-primary": pathname.includes("/dashboard/files"),
           })} onClick={() => router.push("/dashboard/files")}>
@@ -58,7 +59,7 @@ export default function DashboardLayout({ children }) {
         </div>
 
         {/* Account actions */}
-        <div className="flex flex-col gap-4 mx-auto">
+        <div className="flex flex-col gap-4 mx-auto text-muted-foreground">
           <ThemeToggle />
 
           <Button variant="ghost" size="icon" className="w-10 h-10 cursor-pointer rounded-lg hover:text-primary" onClick={logout}>

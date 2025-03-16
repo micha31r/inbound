@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { getAllFilesByTeam, uploadFile } from "@/lib/data/file";
 import { getManager } from "@/lib/data/profile";
+import { getFileNameFromPath } from "@/lib/utils";
 
 export default function FilePage() {
   const [files, setFiles] = useState([])
@@ -30,7 +31,7 @@ export default function FilePage() {
 
   async function uploadFiles() {
     for (let file of files) {
-      await uploadFile(manager.team_id, file)
+      await uploadFile(manager.team_ids[0], file)
     }
     window.location.reload()
   }
@@ -44,7 +45,9 @@ export default function FilePage() {
           </div>
           <div className="flex flex-col gap-1 p-3">
             {existingFiles.map((file, index) => (
-              <Button key={index} variant="ghost" className="w-full justify-start p-3 rounded-lg">{file.name}</Button>
+              <Button key={index} variant="ghost" className="w-full justify-start p-3 rounded-lg">
+                <span className="line-clamp-1">{getFileNameFromPath(file.name)}</span>
+              </Button>
             ))}
           </div>
         </div>

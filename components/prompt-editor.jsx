@@ -2,9 +2,9 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { getAllFilesByTeam } from "@/lib/data/file"
+import { downloadFile, getAllFilesByTeam } from "@/lib/data/file"
 import { getTeamById } from "@/lib/data/team"
-import { cn } from "@/lib/utils"
+import { cn, extractTextFromPDF, getFileNameFromPath } from "@/lib/utils"
 import { Check } from "lucide-react"
 import { useEffect, useState } from "react"
 import {
@@ -16,13 +16,14 @@ import {
 } from "@/components/ui/select"
 import { createPrompt, savePrompt } from "@/lib/data/prompt"
 import { useRouter } from "next/navigation"
-import { generateFlow, saveFlow } from "@/lib/data/flow"
+import { createFlow, saveBlock, saveFlow } from "@/lib/data/flow"
 import { getManager } from "@/lib/data/profile"
+import { generateOnboardingFlow } from "@/lib/openai/openai"
 
 export function PromptEditor({ initial }) {
   const [name, setName] = useState(initial?.name || '')
   const [instructions, setInstructions] = useState(initial?.instructions || [''])
-  const [selectedFiles, setSelectedFiles] = useState(initial?.file_ids || [])
+  const [selectedFiles, setSelectedFiles] = useState(initial?.file_paths || [])
   const [selectedTeam, setSelectedTeam] = useState(initial?.team_id || '');
   const [manager, setManager] = useState(null)
   const [files, setFiles] = useState([])
@@ -66,12 +67,12 @@ export function PromptEditor({ initial }) {
     }
   }
 
-  function selectFile(fileId) {
+  function selectFile(filePath) {
     setSelectedFiles(selectedFiles => {
-        if (selectedFiles.includes(fileId)) {
-          return selectedFiles.filter(id => id !== fileId)
+        if (selectedFiles.includes(filePath)) {
+          return selectedFiles.filter(id => id !== filePath)
         } else {
-          return [...selectedFiles, fileId]
+          return [...selectedFiles, filePath]
         }
     })
   }
@@ -83,7 +84,7 @@ export function PromptEditor({ initial }) {
           id: initial.id,
           name: name || "Untitled Prompt",
           instructions: instructions,
-          fileIds: selectedFiles,
+          filePaths: selectedFiles,
           teamId: selectedTeam
         })
 
@@ -93,7 +94,7 @@ export function PromptEditor({ initial }) {
         const data = await createPrompt({
           name: name || "Untitled Prompt",
           instructions: instructions,
-          fileIds: selectedFiles,
+          filePaths: selectedFiles,
           teamId: selectedTeam
         })
 
@@ -105,9 +106,44 @@ export function PromptEditor({ initial }) {
   }
 
   async function createOnboardingFlow() {
-    const flowData = await generateFlow(instructions, files.filter(file => selectedFiles.includes(file.id)), selectedTeam)
-    const { data, error } = await saveFlow(flowData)
-    router.push("/dashboard/flows")
+    if (!selectedTeam) {
+      console.log("Failed to create onboarding flow. Must select a team.")
+      return 
+    }
+
+    const documents = []
+
+    for (let filePath of selectedFiles) {
+      const blob = await downloadFile(filePath)
+      const text = await extractTextFromPDF(blob)
+      documents.push({
+        filePath: filePath,
+        text: text
+      })
+    }
+
+    const response = await generateOnboardingFlow(instructions, documents)
+
+    const flowData = await createFlow({
+      name: response.title,
+      teamId: selectedTeam,
+      isPublished: false,
+    })
+
+    for (let i=0; i<response.learning_tasks.length; i++) {
+      const block = response.learning_tasks[i]
+      await saveBlock({
+        title: block.title,
+        summary: block.summary,
+        content: block.content,
+        duration: block.estimated_time_minutes,
+        filePaths: block.file_paths,
+        flowId: flowData.id,
+        order: i
+      })
+    }
+
+    router.push("/dashboard/flows/" + flowData.id)
   }
   
   return (
@@ -135,12 +171,12 @@ export function PromptEditor({ initial }) {
         {files.length > 0 && (
             <div className="flex gap-4 flex-wrap">
             {files.map((file, index) => (
-              <div key={index} onClick={_ => selectFile(file.id)} className="flex items-center border-2 border-border bg-secondary/30 rounded-full p-1 px-2 w-max cursor-pointer hover:border-primary transition-colors">
-                <span className="text-sm font-medium p-1 pr-2">{file.name}</span>
+              <div key={index} onClick={_ => selectFile(file.fullPath)} className="flex items-center border-2 border-border bg-secondary/30 rounded-full p-1 px-2 w-max cursor-pointer hover:border-primary transition-colors">
+                <span className="text-sm font-medium p-1 pr-2">{getFileNameFromPath(file.name)}</span>
                 <div className={cn("w-5 h-5 border-2 border-secondary-accent rounded-full", {
-                  "border-primary bg-primary": selectedFiles.includes(file.id)
+                  "border-primary bg-primary": selectedFiles.includes(file.fullPath)
                 })}>
-                  {selectedFiles.includes(file.id) && <Check className="size-4" />}
+                  {selectedFiles.includes(file.fullPath) && <Check className="size-4" />}
                 </div>
               </div>
             ))}
@@ -167,7 +203,7 @@ export function PromptEditor({ initial }) {
       </div>
       <div className="space-x-4">
         <Button variant="secondary" className="font-bold rounded-full w-max cursor-pointer mt-8" onClick={saveActionHandler}>Save</Button>
-        <Button className="font-bold rounded-full w-max cursor-pointer mt-8" onClick={createOnboardingFlow}>Create Onboarding Flow</Button>
+        <Button className="font-bold rounded-full w-max cursor-pointer mt-8" onClick={createOnboardingFlow} disabled={!selectedTeam}>Generate onboarding guide</Button>
       </div>
     </div>
   )

@@ -44,7 +44,7 @@ export const updateSession = async (request) => {
       return NextResponse.redirect(new URL("/auth/login", request.url));
     }
 
-    if (request.nextUrl.pathname === "/dashboard" && user.error) {
+    if ((request.nextUrl.pathname.includes("/dashboard") || request.nextUrl.pathname.includes("/employee")) && user.error) {
       return NextResponse.redirect(new URL("/protected", request.url));
     }
 
